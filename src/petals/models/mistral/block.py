@@ -245,7 +245,7 @@ class WrappedMistralBlock(OptimizedMistralDecoderLayer):
                 (batch_size, seq_length_with_past), dtype=torch.bool, device=hidden_states.device
             )
         attention_mask = MistralModel._prepare_decoder_attention_mask(
-            None, attention_mask, (batch_size, seq_length), hidden_states, past_key_values_length
+            None, attention_mask, (batch_size, seq_length), hidden_states, past_key_values_length,sliding_window=self.config.sliding_window,
         )
 
         outputs = super().forward(
