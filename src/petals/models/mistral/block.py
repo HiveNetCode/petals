@@ -133,9 +133,9 @@ class OptimizedMistralDecoderLayer(MistralDecoderLayer):
         self.mlp = MistralMLP(config)
         self.input_layernorm = MistralRMSNorm(config.hidden_size, eps=config.rms_norm_eps)
         self.post_attention_layernorm = MistralRMSNorm(config.hidden_size, eps=config.rms_norm_eps)
-
         self.pre_attn_graph = None
         self.post_attn_graph = None
+        self.config = config
 
     def _optimized_input_layernorm(self, hidden_states):
         if self.pre_attn_graph is None:
