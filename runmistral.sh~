@@ -1,0 +1,13 @@
+#!/bin/sh
+export INITIAL_PEERS=/ip4/51.79.102.103/tcp/31337/p2p/QmT3TtHZyKGHuXzgWaC5AXscQsFRrH9jJGU8PC4YJUwD5g
+MYIP="51.79.102.103"
+echo $MYIP
+blocs=$1
+sudo docker container stop mistral-7b
+sudo docker container remove mistral-7b
+
+#mistralai/Mistral-7B-v0.1
+#petals-hive:latest
+sudo docker create -p 32330:32330 --ipc host --gpus all --volume petals-cache:/cache --name mistral-7b petals-hive:latest python -m petals.cli.run_server mistralai/Mistral-7B-v0.1 --port 32330 --initial_peers $INITIAL_PEERS --block_indices $blocs --public_ip $MYIP  --public_name "$MYIP"
+
+sudo docker container start mistral-7b
