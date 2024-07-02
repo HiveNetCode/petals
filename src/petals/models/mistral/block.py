@@ -223,11 +223,11 @@ class OptimizedMistralDecoderLayer(MistralDecoderLayer):
 
 
 class WrappedMistralBlock(OptimizedMistralDecoderLayer):
-    def __init__(self, config: MistralConfig, layer_idx: int):
+    def __init__(self, config: MistralConfig):
         super().__init__(config)
         self._attn_implementation = config._attn_implementation
         self.sliding_window = config.sliding_window
-        self.layer_idx = layer_idx
+        #self.layer_idx = layer_idx
     def forward(
         self,
         hidden_states: torch.Tensor,
