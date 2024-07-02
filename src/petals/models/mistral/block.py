@@ -9,6 +9,7 @@ from typing import Optional, Tuple
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from transformers.modeling_attn_mask_utils import _prepare_4d_causal_attention_mask
 from transformers.models.mistral.modeling_mistral import (
     MistralAttention,
     MistralConfig,
@@ -249,8 +250,11 @@ class WrappedMistralBlock(OptimizedMistralDecoderLayer):
             attention_mask = torch.ones(
                 (batch_size, seq_length_with_past), dtype=torch.bool, device=hidden_states.device
             )
-        attention_mask = MistralModel._prepare_decoder_attention_mask(
-            None, attention_mask, (batch_size, seq_length), hidden_states, past_key_values_length,sliding_window=self.config.sliding_window,
+        attention_mask = _prepare_4d_causal_attention_mask(
+            attention_mask=attention_mask,
+            input_shape=(batch_size, seq_length),
+            inputs_embeds=hidden_states,
+            past_key_values_length=past_key_values_length,
         )
 
         outputs = super().forward(
