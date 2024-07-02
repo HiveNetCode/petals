@@ -250,12 +250,19 @@ class WrappedMistralBlock(OptimizedMistralDecoderLayer):
             attention_mask = torch.ones(
                 (batch_size, seq_length_with_past), dtype=torch.bool, device=hidden_states.device
             )
-        attention_mask = _prepare_4d_causal_attention_mask(
-            attention_mask=attention_mask,
-            input_shape=(batch_size, seq_length),
-            inputs_embeds=hidden_states,
-            past_key_values_length=past_key_values_length,
+        # 4d mask is passed through the layers
+            attention_mask = _prepare_4d_causal_attention_mask(
+                attention_mask,
+                (batch_size, seq_length),
+                hidden_states,
+                past_key_values_length,
+                sliding_window=self.sliding_window,
+            )
+
+        position_ids = torch.arange(
+            past_key_values_length, seq_length + past_key_values_length, dtype=torch.long, device=hidden_states.device
         )
+        position_ids = position_ids.unsqueeze(0).view(-1, seq_length)
 
         outputs = super().forward(
             hidden_states,
@@ -264,14 +271,13 @@ class WrappedMistralBlock(OptimizedMistralDecoderLayer):
             position_ids=position_ids,
             past_key_value=past_key_value,
             use_cache=use_cache,
-            **kwargs,
+            **kwargs
         )
 
         if use_cache:
             present_key_value = outputs[-1]
-            present_key_value = self._reorder_cache_from_mistral_to_bloom(
-                present_key_value, batch_size, seq_length_with_past
-            )
+            present_key_value = present_key_value[self.layer_idx]
+            present_key_value = self._reorder_cache_from_mistral_to_bloom(present_key_value, batch_size, seq_length_with_past)
             outputs = outputs[:-1] + (present_key_value,)
 
         return outputs
