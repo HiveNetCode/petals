@@ -130,6 +130,7 @@ class OptimizedMistralAttention(MistralAttention):
 
 class OptimizedMistralDecoderLayer(MistralDecoderLayer):
     def __init__(self, config: MistralConfig):
+        
         nn.Module.__init__(self)
         self.hidden_size = config.hidden_size
         self.self_attn = OptimizedMistralAttention(config=config)
@@ -223,7 +224,7 @@ class OptimizedMistralDecoderLayer(MistralDecoderLayer):
 
 class WrappedMistralBlock(OptimizedMistralDecoderLayer):
     def __init__(self, config: MistralConfig, layer_idx: int):
-        super().__init__(config, layer_idx)
+        super().__init__(config)
         self._attn_implementation = config._attn_implementation
         self.sliding_window = config.sliding_window
         self.layer_idx = layer_idx
